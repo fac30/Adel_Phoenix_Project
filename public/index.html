@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <link
+        rel="stylesheet"
+        type="text/css"
+        href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css"
+        />
+        <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js"></script>
+</head>
+<body>
+    <div id="mymap">Hello TomTom Map</div>
+
+    <script>
+        // API key will be injected here
+        var APIKEY = 'mpkLULdiGATz7CL6SF9CjDKhsD5URe63';
+
+        var map = tt.map({
+        key: APIKEY,
+        container: "mymap",
+      })
+                
+    
+    </script>
+</body>
+</html>
