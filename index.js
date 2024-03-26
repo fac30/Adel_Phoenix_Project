@@ -1,51 +1,67 @@
 const express = require('express');
-const { request } = require('follow-redirects').https;
 const fs = require('fs');
-const auth_key = Buffer.from('access_key:secret_key').toString('base64');
-
-const options = {
-  method: 'GET',
-  hostname: 'api.roadgoat.com',
-  port: 80,
-  path: '/api/v2/destinations/new-york-ny-usa',
-  headers: {
-    Authorization: `Basic ${auth_key}`
-  },
-  maxRedirects: 20
-};
+require('dotenv').config();
+const dotenv = require('dotenv');
+const path = require('path');
+const openai = require('openai');
 
 const app = express();
 const port = 3000;
 
-app.get('/', (req, res) => {
-  const reqApi = request(options, (response) => {
-    let chunks = '';
+const HTML_FILE_PATH = path.join('public', 'index.html');
 
-    response.on('data', (chunk) => {
-      chunks += chunk;
+dotenv.config({ path: path.join(__dirname, 'env', '.env') });
+
+// Read the API key from environment variables
+app.use(express.static(path.join(__dirname, 'public')));
+const openaiApiKey = process.env.OPENAI_API_KEY;
+
+if (!openaiApiKey) {
+    console.error('OpenAI API key not found in environment variables.');
+    return;
+}
+
+// Read the HTML file
+fs.readFile(HTML_FILE_PATH, 'utf8', (err, htmlContent) => {
+    if (err) {
+        console.error('Error reading HTML file:', err);
+        return;
+    }
+
+    // Replace placeholder with the OpenAI API key in the HTML content
+    const updatedHtmlContent = htmlContent.replace('{{OPENAI_API_KEY}}', openaiApiKey.trim());
+
+    // Write the updated HTML content back to the file
+    fs.writeFile(HTML_FILE_PATH, updatedHtmlContent, 'utf8', err => {
+        if (err) {
+            console.error('Error writing updated HTML file:', err);
+            return;
+        }
+        console.log('OpenAI API key injected into HTML file successfully.');
     });
+});
 
-    response.on('end', () => {
-      const responseBody = JSON.parse(chunks);
-      const photos = responseBody.included.filter(
-        (item) => item.type === 'photo'
-      );
-      // Extracting photo URLs
-      const photoUrls = photos.map((photo) => {
-        return photo.attributes.image.medium; // or 'thumb' for thumbnail
-      });
-      res.json(photoUrls);
+// Set up OpenAI API client
+const ai = new openai.OpenAI(openaiApiKey);
+
+// Endpoint to generate responses using ChatGPT
+app.post('/generate-response', express.json(), (req, res) => {
+    const { prompt } = req.body;
+
+    // Use the OpenAI API to generate a response
+    ai.chat.completions.create({
+        prompt,
+        model: "gpt-3.5-turbo",
+      })
+    .then(response => {
+        res.json({ response: response.data.choices[0].text.trim() });
+    })
+    .catch(error => {
+        console.error('Error generating response:', error);
+        res.status(500).json({ error: 'An error occurred while generating the response.' });
     });
-  });
-
-  reqApi.on('error', (error) => {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-  });
-
-  reqApi.end();
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });

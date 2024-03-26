@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <link
+        rel="stylesheet"
+        type="text/css"
+        href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css"
+        />
+        <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js"></script>
+        <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/services/services-web.min.js"></script>
+        <style>
+            #mymap {
+                height: 500px; /* Adjust the height value as needed */
+                width: 100%; /* Optionally, set the width to 100% to fill the entire width of the container */
+                background-color: lightgray; /* Just for visualization, you can remove this line */
+            }
+        </style>
+</head>
+
+<body>
+    <input type = "text" id="query" value="">
+    <button onclick="search()">SEARCH</button>
+    <div id="mymap">Hello TomTom Map</div>
+    <div>
+        <label for="userInput">Your message:</label><br>
+        <input type="text" id="userInput" name="userInput"><br><br>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <div>
+        <label for="botResponse">Bot response:</label><br>
+        <textarea id="botResponse" name="botResponse" rows="4" cols="50" readonly></textarea>
+    </div>
+
+    <script>
+        // API key will be injected here
+        var APIKEY = '';
+
+        var map = tt.map({
+        key: APIKEY,
+        container: "mymap",
+      })
+
+        var moveMap = function(lnglat){
+            map.flyTo({
+                center: lnglat,
+                zoom: 14
+            })
+        }
+        var handleResults = function(result){
+            console.log(result);
+            if(result.results){
+                moveMap(result.results[0].position)
+            }
+        }
+
+        var search = function(){
+            tt.services.fuzzySearch({
+                key: APIKEY,
+                query: document.getElementById("query").value,
+            }).then(handleResults)
+        }
+
+                
+    
+    </script>
+
+<script>
+    function sendMessage() {
+        var userInput = document.getElementById("userInput").value;
+        fetch('/generate-response', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt: userInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("botResponse").value = data.response;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>
