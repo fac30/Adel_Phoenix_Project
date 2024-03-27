@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="styles.css">
      <link
         rel="stylesheet"
         type="text/css"
@@ -18,18 +19,35 @@
 </head>
 
 <body>
-    <input type = "text" id="query" value="">
-    <button onclick="search()">SEARCH</button>
-    <div id="mymap">Hello TomTom Map</div>
-    <div>
-        <label for="userInput">Your message:</label><br>
-        <input type="text" id="userInput" name="userInput"><br><br>
-        <button onclick="sendMessage()">Send</button>
+    <div class="navbar">
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
     </div>
-    <div>
+
+    
+    <div id="mymap">Hello TomTom Map</div>
+   
+   
+   
+    <div id = "center-container">
+        
+       
+        <div id="centered-div">
+            <input type="text" id="userInput" name="userInput"><br><br>
+            <button onclick="combinedFunction()">Send & Search</button>
+           
+        </div>
         <label for="botResponse">Bot response:</label><br>
         <textarea id="botResponse" name="botResponse" rows="4" cols="50" readonly></textarea>
+     
     </div>
+    
 
     <script>
         // API key will be injected here
@@ -56,17 +74,20 @@
         var search = function(){
             tt.services.fuzzySearch({
                 key: APIKEY,
-                query: document.getElementById("query").value,
+                query: document.getElementById("userInput").value,
             }).then(handleResults)
         }
 
                 
-    
-    </script>
+     function combinedFunction() {
+            sendMessage();
+            search();
+        }
 
-<script>
     function sendMessage() {
         var userInput = document.getElementById("userInput").value;
+        var talkAbout = "talk about";
+        var userInput = talkAbout + " " + userInput;
         fetch('/generate-response', {
             method: 'POST',
             headers: {
