@@ -1,0 +1,37 @@
+.navbar {
+  background-color: blue;
+  color: white;
+}
+
+.navbar nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar nav ul li {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.navbar nav ul li a {
+  text-decoration: none;
+  color: white;
+  padding: 5px 10px;
+}
+
+#center-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#response {
+  text-align: center;
+}
+
+#centered-div {
+  display: flex;
+  justify-content: center;
+}
